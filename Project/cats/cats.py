@@ -37,7 +37,11 @@ def pick(paragraphs, select, k):
     ''
     """
     # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
+    select_paragraph = list(filter(select, paragraphs))
+    if k >= len(select_paragraph):
+        return ''
+    else:
+        return select_paragraph[k]
     # END PROBLEM 1
 
 
@@ -57,7 +61,13 @@ def about(subject):
     assert all([lower(x) == x for x in subject]), "subjects should be lowercase."
 
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    def judge(s):
+        t = split(lower(remove_punctuation(s)))
+        if any([x in t for x in subject]):
+            return True
+        else:
+            return False
+    return judge
     # END PROBLEM 2
 
 
@@ -86,6 +96,12 @@ def accuracy(typed, source):
     """
     typed_words = split(typed)
     source_words = split(source)
+    correct = sum([typed_words[i] == source_words[i] for i in range(min(len(typed_words), len(source_words)))])
+    if len(typed_words) == 0 and len(source_words) == 0:
+        return 100.0
+    elif len(typed_words) == 0:
+        return 0.0
+    return 100 * correct / len(typed_words)
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
     # END PROBLEM 3
@@ -105,7 +121,7 @@ def wpm(typed, elapsed):
     """
     assert elapsed > 0, "Elapsed time must be positive"
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    return len(typed) * 12 / elapsed
     # END PROBLEM 4
 
 
@@ -166,7 +182,13 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     'testing'
     """
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    if typed_word in word_list:
+        return typed_word
+    x = min(word_list, key = lambda x: diff_function(typed_word, x, limit))
+    if diff_function(typed_word, x, limit) > limit:
+        return typed_word
+    else:
+        return x
     # END PROBLEM 5
 
 
@@ -193,9 +215,19 @@ def furry_fixes(typed, source, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    if limit < 0:
+        return 1
+    x, y = len(typed), len(source)
+    if x == 0 or y == 0:
+        return max(x, y)
+    else:
+        if typed[0] == source[0]:
+            return furry_fixes(typed[1:], source[1:], limit)
+        else:
+            return furry_fixes(typed[1:], source[1:], limit - 1) + 1
     # END PROBLEM 6
 
+import string
 
 def minimum_mewtations(typed, source, limit):
     """A diff function for autocorrect that computes the edit distance from TYPED to SOURCE.
@@ -214,23 +246,17 @@ def minimum_mewtations(typed, source, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-    # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    if limit < 0: # Base cases should go here, you may add more base cases as needed.
+        return 1
+    if len(typed) == 0 or len(source) == 0: # Feel free to remove or add additional cases
+        return max(len(typed), len(source))
+    if typed[0] == source[0]:
+        return minimum_mewtations(typed[1:], source[1:], limit)
     else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+        add = minimum_mewtations(source[0] + typed, source, limit - 1)
+        remove = minimum_mewtations(typed[1:], source, limit - 1)
+        substitute = minimum_mewtations(source[0] + typed[1:], source, limit - 1)
+        return min(add, remove, substitute) + 1
 
 
 # Ignore the line below
@@ -240,8 +266,17 @@ minimum_mewtations = count(minimum_mewtations)
 def final_diff(typed, source, limit):
     """A diff function that takes in a string TYPED, a string SOURCE, and a number LIMIT.
     If you implement this function, it will be used."""
-    assert False, "Remove this line to use your final_diff function."
-
+    if limit < 0: # Base cases should go here, you may add more base cases as needed.
+        return 1
+    if len(typed) == 0 or len(source) == 0: # Feel free to remove or add additional cases
+        return max(len(typed), len(source))
+    if typed[0] == source[0]:
+        return final_diff(typed[1:], source[1:], limit)
+    else:
+        add = final_diff(source[0] + typed, source, limit - 1)
+        remove = final_diff(typed[1:], source, limit - 1)
+        substitute = final_diff(source[0] + typed[1:], source, limit - 1)
+        return min(add, remove, substitute) + 1 
 
 FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
 
