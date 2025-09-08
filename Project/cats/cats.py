@@ -148,10 +148,20 @@ def memo(f):
 def memo_diff(diff_function):
     """A memoization function."""
     cache = {}
-
+    another_cache = {}
     def memoized(typed, source, limit):
         # BEGIN PROBLEM EC
-        "*** YOUR CODE HERE ***"
+        tup = (typed, source)
+        if tup in cache:
+            return cache[tup]
+        if tup in another_cache and another_cache[tup] > limit:
+                return another_cache[tup]
+        value = diff_function(typed, source, limit)
+        if value <= limit:
+            cache[tup] = value
+        else:
+            another_cache[tup] = value
+        return value
         # END PROBLEM EC
 
     return memoized
@@ -161,7 +171,7 @@ def memo_diff(diff_function):
 # Phase 2 #
 ###########
 
-
+@memo
 def autocorrect(typed_word, word_list, diff_function, limit):
     """Returns the element of WORD_LIST that has the smallest difference
     from TYPED_WORD based on DIFF_FUNCTION. If multiple words are tied for the smallest difference,
@@ -229,6 +239,7 @@ def furry_fixes(typed, source, limit):
 
 import string
 
+@memo_diff
 def minimum_mewtations(typed, source, limit):
     """A diff function for autocorrect that computes the edit distance from TYPED to SOURCE.
     This function takes in a string TYPED, a string SOURCE, and a number LIMIT.
@@ -246,10 +257,14 @@ def minimum_mewtations(typed, source, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    if limit < 0: # Base cases should go here, you may add more base cases as needed.
+    if typed == source:
+        return 0
+    if limit == 0:
         return 1
     if len(typed) == 0 or len(source) == 0: # Feel free to remove or add additional cases
         return max(len(typed), len(source))
+    if abs(len(typed) - len(source)) > limit:
+        return limit + 1
     if typed[0] == source[0]:
         return minimum_mewtations(typed[1:], source[1:], limit)
     else:
@@ -310,7 +325,18 @@ def report_progress(typed, source, user_id, upload):
     0.2
     """
     # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
+    len_typed = len(typed)
+    len_source = len(source)
+    i, correct = 0, 0
+    while i < len_typed:
+        if typed[i] == source[i]:
+            correct += 1
+        else:
+            break
+        i += 1
+    ratio = correct / len_source
+    upload({'id': user_id, 'progress': correct / len_source})
+    return ratio
     # END PROBLEM 8
 
 
@@ -335,6 +361,10 @@ def time_per_word(words, timestamps_per_player):
     tpp = timestamps_per_player  # A shorter name (for convenience)
     # BEGIN PROBLEM 9
     times = []  # You may remove this line
+    for i in range(len(tpp)):
+        times.append([])
+        for j in range(len(tpp[i]) - 1):
+            times[i].append(tpp[i][j + 1] - tpp[i][j])
     # END PROBLEM 9
     return {'words': words, 'times': times}
 
@@ -360,8 +390,12 @@ def fastest_words(words_and_times):
     words, times = words_and_times['words'], words_and_times['times']
     player_indices = range(len(times))  # contains an *index* for each player
     word_indices = range(len(words))    # contains an *index* for each word
+    s = [[] for _ in player_indices]
     # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
+    for i in word_indices:
+        fastest = min(player_indices, key = lambda x: get_time(times, x, i))
+        s[fastest].append(words[i])
+    return s
     # END PROBLEM 10
 
 
