@@ -11,7 +11,10 @@ def cumulative_mul(t):
     >>> otherTree
     Tree(5040, [Tree(60, [Tree(3), Tree(4), Tree(5)]), Tree(42, [Tree(7)])])
     """
-    "*** YOUR CODE HERE ***"
+    from math import prod
+    for b in t.branches:
+        cumulative_mul(b)
+    t.label = t.label * prod([b.label for b in t.branches])
 
 
 def prune_small(t, n):
@@ -74,7 +77,6 @@ def max_path_sum(t):
     >>> max_path_sum(t)
     11
     """
-    "*** YOUR CODE HERE ***"
 
 
 class Tree:
